@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: '@name@'
+    version: '@version@'
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      group-id: ${spring.application.name}
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      properties:
+        isolation.level: read_committed
+      client-id: ${spring.application.name}
+  docker:
+    compose:
+      file: "./docker/docker-compose.yml"
+      profiles.active: "percolator"
+
+server.port: 8082
+logging:
+  level:
+    ROOT: INFO
+    com.example.percolator: ${LOG_LEVEL_APP:DEBUG}
+
+app:
+  kafka:
+    search-preference.topic: ${SEARCH_PREFERENCE_TOPIC:search-preference-domain-event}
