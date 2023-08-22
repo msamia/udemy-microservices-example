@@ -13,3 +13,25 @@ services:
       - "5432:5432"
     profiles:
       - core
+
+  zookeeper:
+    image: wurstmeister/zookeeper
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    profiles:
+      - core
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    container_name: kafka
+    environment:
+      KAFKA_MESSAGE_MAX_BYTES: 32768
+      KAFKA_CREATE_TOPICS: "account-domain-event, book-domain-event, search-preference-domain-event"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092"
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    ports:
+      - "9092:9092"
+    profiles:
+      - core
