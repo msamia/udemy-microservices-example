@@ -26,3 +26,9 @@ logging:
 app:
   kafka:
     search-preference.topic: ${SEARCH_PREFERENCE_TOPIC:search-preference-domain-event}
+  elasticsearch:
+    cluster-name: ${ELASTICSEARCH_CLUSTER_NAME:book-cluster}
+    url: ${ELASTICSEARCH_HOST:localhost}
+    port: ${ELASTICSEARCH_PORT:9300}
+    username: ${ELASTICSEARCH_USERNAME:elastic}
+    password: ${ELASTICSEARCH_PASSWORD:changeme}

@@ -24,7 +24,7 @@ public class SearchPreferenceListener {
        Optional.ofNullable(payload)
                .ifPresentOrElse(event-> {
                    deserialize(event)
-                           .ifPresent(service::createPercolatorQuery);
+                           .ifPresent(service::save);
                },
                        () -> {throw new IllegalArgumentException("Payload cannot be null");
                });

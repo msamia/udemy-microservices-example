@@ -21,6 +21,7 @@ services:
       - "2181:2181"
     profiles:
       - core
+      - percolator
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -35,3 +36,19 @@ services:
       - "9092:9092"
     profiles:
       - core
+      - percolator
+
+  elasticsearch:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:6.4.0"
+    container_name: "elasticsearch"
+    environment:
+      - cluster.name=book-cluster
+      - xpack.security.enabled=false
+      - http.cors.enabled=true
+      - http.cors.allow-origin=*
+      - network.host=0.0.0.0
+    ports:
+        - "9200:9200"
+        - "9300:9300"
+    profiles:
+      - percolator
