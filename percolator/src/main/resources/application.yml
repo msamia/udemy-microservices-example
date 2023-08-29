@@ -26,6 +26,7 @@ logging:
 app:
   kafka:
     search-preference.topic: ${SEARCH_PREFERENCE_TOPIC:search-preference-domain-event}
+    book.topic: ${BOOK_TOPIC:book-domain-event}
   elasticsearch:
     cluster-name: ${ELASTICSEARCH_CLUSTER_NAME:book-cluster}
     url: ${ELASTICSEARCH_HOST:localhost}
