@@ -1,7 +1,7 @@
 package com.example.percolator.listener;
 
 import com.example.common.SearchPreferenceCreated;
-import com.example.percolator.service.SearchPreferenceService;
+import com.example.percolator.service.PercolatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
 public class SearchPreferenceListener {
 
     private final ObjectMapper om;
-    private final SearchPreferenceService service;
+    private final PercolatorService service;
 
     @KafkaListener(topics = "${app.kafka.search-preference.topic}", clientIdPrefix = "${spring.kafka.consumer.client-id}-consumer")
     public void process(@Payload final byte[] payload) {

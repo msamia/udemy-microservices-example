@@ -1,8 +1,8 @@
 package com.example.percolator.listener;
 
 import com.example.common.BookCreated;
-import com.example.common.SearchPreferenceCreated;
-import com.example.percolator.service.SearchPreferenceService;
+import com.example.percolator.dispatcher.KafkaDispatcher;
+import com.example.percolator.service.PercolatorService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.util.Optional;
@@ -18,14 +18,18 @@ import org.springframework.stereotype.Service;
 public class BookListener {
 
     private final ObjectMapper om;
-    private final SearchPreferenceService service;
+    private final PercolatorService service;
+    private final KafkaDispatcher dispatcher;
 
     @KafkaListener(topics = "${app.kafka.book.topic}", clientIdPrefix = "${spring.kafka.consumer.client-id}-consumer")
     public void process(@Payload final byte[] payload) {
        Optional.ofNullable(payload)
                .ifPresentOrElse(event-> {
                    deserialize(event)
-                           .ifPresent(System.out::println);
+                           .ifPresent(bookCreated -> {
+                               service.findMatches(bookCreated)
+                                       .forEach(dispatcher::send);
+                           });
                },
                        () -> {throw new IllegalArgumentException("Payload cannot be null");
                });

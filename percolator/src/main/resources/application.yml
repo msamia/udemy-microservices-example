@@ -25,7 +25,8 @@ logging:
 
 app:
   kafka:
-    search-preference.topic: ${SEARCH_PREFERENCE_TOPIC:search-preference-domain-event}
+    search-preference.created.topic: ${SEARCH_PREFERENCE_CREATED_TOPIC:search-preference-domain-event}
+    search-preference.triggered.topic: ${SEARCH_PREFERENCE_TRIGGERED_TOPIC:search-preference-triggered-domain-event}
     book.topic: ${BOOK_TOPIC:book-domain-event}
   elasticsearch:
     cluster-name: ${ELASTICSEARCH_CLUSTER_NAME:book-cluster}
