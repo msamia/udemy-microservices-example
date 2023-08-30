@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +54,7 @@ public class PercolatorService {
             // building our percolator query
             final XContentBuilder builder = jsonBuilder()
                     .startObject()
-                    .field(PercolatorIndexFields.PRICE.getFieldName(), bookCreated.price())
+                    .field(PercolatorIndexFields.PRICE.getFieldName(), bookCreated.price().doubleValue())
                     .field(PercolatorIndexFields.BOOK_TYPE.getFieldName(), bookCreated.type())
                     .endObject();
             PercolateQueryBuilder percolateQueryBuilder = new PercolateQueryBuilder(
@@ -71,9 +70,10 @@ public class PercolatorService {
 
             //find matches
             SearchHits hits = searchResponse.getHits();
-            if (hits != null) {
+            if (hits != null && hits.getHits().length != 0) {
                 SearchHit[] matches = hits.getHits();
                 return Arrays.stream(matches)
+                        .peek(hit -> log.debug("Newly created book got matched on SearchPreference with id {}", hit.getId()))
                         .map(hit -> new SearchPreferenceTriggered(hit.getId()))
                         .collect(Collectors.toList());
             } else {
@@ -89,7 +89,7 @@ public class PercolatorService {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
         if (spc.types() != null) {
-            boolQueryBuilder.filter(QueryBuilders.termQuery(PercolatorIndexFields.BOOK_TYPE.getFieldName(), spc.types()));
+            boolQueryBuilder.filter(QueryBuilders.termsQuery(PercolatorIndexFields.BOOK_TYPE.getFieldName(), spc.types()));
         }
 
         if (spc.minimumPrice() != null && spc.maximumPrice() != null) {

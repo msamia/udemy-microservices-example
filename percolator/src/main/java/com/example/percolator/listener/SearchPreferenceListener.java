@@ -19,7 +19,7 @@ public class SearchPreferenceListener {
     private final ObjectMapper om;
     private final PercolatorService service;
 
-    @KafkaListener(topics = "${app.kafka.search-preference.topic}", clientIdPrefix = "${spring.kafka.consumer.client-id}-consumer")
+    @KafkaListener(topics = "${app.kafka.search-preference.created.topic}", clientIdPrefix = "${spring.kafka.consumer.client-id}-consumer")
     public void process(@Payload final byte[] payload) {
        Optional.ofNullable(payload)
                .ifPresentOrElse(event-> {
