@@ -1,6 +1,7 @@
 package com.example.percolator.dispatcher;
 
-import com.example.common.SearchPreferenceTriggered;
+import com.example.common.v1.search_preference.SearchPreferenceDomainEvent;
+import com.example.common.v1.search_preference.SearchPreferenceTriggered;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,11 +18,11 @@ public class KafkaDispatcher {
     private final KafkaTemplate<String, String> template;
     private final ObjectMapper om;
 
-    @Value("${app.kafka.search-preference.triggered.topic}")
+    @Value("${app.kafka.search-preference.topic}")
     private String searchPreferenceTopic;
 
-    public void send(SearchPreferenceTriggered spt) {
-        String event = serialize(spt);
+    public void send(SearchPreferenceDomainEvent domainEvent) {
+        String event = serialize(domainEvent);
         this.template.send(searchPreferenceTopic, event);
         log.debug("Sending message {} to {}.", event, searchPreferenceTopic);
     }

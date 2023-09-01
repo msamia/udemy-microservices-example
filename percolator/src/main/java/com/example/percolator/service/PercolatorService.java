@@ -1,13 +1,21 @@
 package com.example.percolator.service;
 
-import com.example.common.BookCreated;
-import com.example.common.SearchPreferenceCreated;
-import com.example.common.SearchPreferenceTriggered;
+import com.example.common.v1.account.AccountCreated;
+import com.example.common.v1.account.AccountDomainEvent;
+import com.example.common.v1.account.AccountEvent;
+import com.example.common.v1.book.BookCreated;
+import com.example.common.v1.book.BookDomainEvent;
+import com.example.common.v1.search_preference.SearchPreferenceCreated;
+import com.example.common.v1.search_preference.SearchPreferenceDomainEvent;
+import com.example.common.v1.search_preference.SearchPreferenceEvent;
+import com.example.common.v1.search_preference.SearchPreferenceTriggered;
 import com.example.percolator.config.PercolatorIndexFields;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,13 +42,14 @@ public class PercolatorService {
     public static final String PERCOLATOR_INDEX = "percolator_index";
     private final Client esClient;
 
-    public void save(SearchPreferenceCreated spc) {
+    public void save(SearchPreferenceDomainEvent<SearchPreferenceCreated> domainEvent) {
+        SearchPreferenceCreated spc = domainEvent.getPayload();
         log.debug("Percolator Query saving process has been starting with {}", spc.toString());
         BoolQueryBuilder boolQueryBuilder = getBoolQueryBuilder(spc);
 
         try {
             this.esClient
-                    .prepareIndex(PERCOLATOR_INDEX, "docs", spc.id())
+                    .prepareIndex(PERCOLATOR_INDEX, "docs", spc.getId())
                     .setSource(jsonBuilder().startObject().field(PercolatorIndexFields.QUERY.getFieldName(), boolQueryBuilder).endObject())
                     .setRefreshPolicy(WriteRequest.RefreshPolicy.IMMEDIATE)
                     .get();
@@ -49,13 +58,14 @@ public class PercolatorService {
         }
     }
 
-    public List<SearchPreferenceTriggered> findMatches(BookCreated bookCreated) {
+    public List<SearchPreferenceDomainEvent<SearchPreferenceTriggered>> findMatches(BookDomainEvent<BookCreated> bookCreatedDomainEvent) {
         try {
+            BookCreated booCreated = bookCreatedDomainEvent.getPayload();
             // building our percolator query
             final XContentBuilder builder = jsonBuilder()
                     .startObject()
-                    .field(PercolatorIndexFields.PRICE.getFieldName(), bookCreated.price().doubleValue())
-                    .field(PercolatorIndexFields.BOOK_TYPE.getFieldName(), bookCreated.type())
+                    .field(PercolatorIndexFields.PRICE.getFieldName(), booCreated.getPrice().doubleValue())
+                    .field(PercolatorIndexFields.BOOK_TYPE.getFieldName(), booCreated.getType())
                     .endObject();
             PercolateQueryBuilder percolateQueryBuilder = new PercolateQueryBuilder(
                     PercolatorIndexFields.QUERY.getFieldName(),
@@ -74,10 +84,18 @@ public class PercolatorService {
                 SearchHit[] matches = hits.getHits();
                 return Arrays.stream(matches)
                         .peek(hit -> log.debug("Newly created book got matched on SearchPreference with id {}", hit.getId()))
-                        .map(hit -> new SearchPreferenceTriggered(hit.getId()))
+                        .map(hit -> SearchPreferenceDomainEvent.<SearchPreferenceTriggered>builder()
+                                .id(UUID.randomUUID())
+                                .type(SearchPreferenceEvent.EventType.SEARCH_PREFERENCE_TRIGGERED.getEventName())
+                                .aggregateId(UUID.randomUUID().toString())
+                                .correlationId(bookCreatedDomainEvent.getId()) //chaining domain events
+                                .created(Instant.now())
+                                .source(SearchPreferenceDomainEvent.SOURCE)
+                                .payload(new SearchPreferenceTriggered(hit.getId()))
+                                .build())
                         .collect(Collectors.toList());
             } else {
-                log.info("No hits had been found on newly created book with id {}", bookCreated.id());
+                log.info("No hits had been found on newly created book with id {}", bookCreatedDomainEvent.getId());
             }
         } catch (IOException e) {
             log.error("Error has occurred during percolator query building process: {}", e.getMessage());
@@ -88,16 +106,16 @@ public class PercolatorService {
     private BoolQueryBuilder getBoolQueryBuilder(SearchPreferenceCreated spc) {
         BoolQueryBuilder boolQueryBuilder = QueryBuilders.boolQuery();
 
-        if (spc.types() != null) {
-            boolQueryBuilder.filter(QueryBuilders.termsQuery(PercolatorIndexFields.BOOK_TYPE.getFieldName(), spc.types()));
+        if (spc.getTypes() != null) {
+            boolQueryBuilder.filter(QueryBuilders.termsQuery(PercolatorIndexFields.BOOK_TYPE.getFieldName(), spc.getTypes()));
         }
 
-        if (spc.minimumPrice() != null && spc.maximumPrice() != null) {
-            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.minimumPrice().doubleValue()).lte(spc.maximumPrice().doubleValue()));
-        } else if (spc.minimumPrice() != null) {
-            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.minimumPrice().doubleValue()));
-        } else if (spc.maximumPrice() != null) {
-            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.maximumPrice().doubleValue()));
+        if (spc.getMinimumPrice() != null && spc.getMaximumPrice() != null) {
+            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.getMinimumPrice().doubleValue()).lte(spc.getMaximumPrice().doubleValue()));
+        } else if (spc.getMinimumPrice() != null) {
+            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.getMinimumPrice().doubleValue()));
+        } else if (spc.getMaximumPrice() != null) {
+            boolQueryBuilder.filter(QueryBuilders.rangeQuery(PercolatorIndexFields.PRICE.getFieldName()).gte(spc.getMaximumPrice().doubleValue()));
         }
         return boolQueryBuilder;
     }

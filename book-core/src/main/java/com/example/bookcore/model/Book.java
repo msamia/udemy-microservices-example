@@ -1,7 +1,6 @@
 package com.example.bookcore.model;
 
-import com.example.common.BookType;
-import jakarta.persistence.Embedded;
+import com.example.common.v1.book.BookType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

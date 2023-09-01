@@ -1,6 +1,6 @@
 package com.example.bookcore.dispatcher;
 
-import com.example.common.BookCreated;
+import com.example.common.v1.book.BookDomainEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +20,8 @@ public class KafkaDispatcher {
     @Value("${app.kafka.book.topic}")
     private String bookTopic;
 
-    public void send(BookCreated bookCreated) {
-        String event = serialize(bookCreated);
+    public void send(BookDomainEvent domainEvent) {
+        String event = serialize(domainEvent);
         this.template.send(bookTopic, event);
         log.debug("Sending message {} to {}.", event, bookTopic);
     }
