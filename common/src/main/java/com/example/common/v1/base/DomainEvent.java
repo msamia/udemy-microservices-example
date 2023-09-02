@@ -5,8 +5,10 @@ import java.util.UUID;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 import lombok.experimental.SuperBuilder;
 
+@ToString
 @SuperBuilder(builderMethodName = "baseBuilder")
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

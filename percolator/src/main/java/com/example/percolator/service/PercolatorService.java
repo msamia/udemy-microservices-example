@@ -1,8 +1,5 @@
 package com.example.percolator.service;
 
-import com.example.common.v1.account.AccountCreated;
-import com.example.common.v1.account.AccountDomainEvent;
-import com.example.common.v1.account.AccountEvent;
 import com.example.common.v1.book.BookCreated;
 import com.example.common.v1.book.BookDomainEvent;
 import com.example.common.v1.search_preference.SearchPreferenceCreated;

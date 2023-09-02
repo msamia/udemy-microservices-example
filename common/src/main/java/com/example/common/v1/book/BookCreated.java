@@ -3,6 +3,7 @@ package com.example.common.v1.book;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.beans.ConstructorProperties;
 import java.math.BigDecimal;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class BookCreated extends BookEvent {
     private BookType type;
 
     @JsonCreator
+    @ConstructorProperties({"id", "title", "author", "price", "types"})
     public BookCreated(String id, String title, String author, BigDecimal price, BookType type) {
         super(EventType.BOOK_CREATED);
         this.id = id;

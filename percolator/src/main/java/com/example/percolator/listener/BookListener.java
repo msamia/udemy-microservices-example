@@ -48,7 +48,7 @@ public class BookListener {
                });
     }
 
-    private Optional<BookDomainEvent> deserialize(final JsonNode payload) throws JsonProcessingException {
+    private Optional<BookDomainEvent<BookCreated>> deserialize(final JsonNode payload) throws JsonProcessingException {
         JavaType javaType = om.constructType(new TypeReference<BookDomainEvent<BookCreated>>() {});
         return Optional.of(om.treeToValue(payload, javaType));
     }
