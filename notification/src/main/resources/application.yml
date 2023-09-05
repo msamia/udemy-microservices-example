@@ -5,8 +5,8 @@ spring:
 # Email Configuration
   mail:
     host: smtp.gmail.com
-    username: your-email@example.com
-    password: your-email-password
+    username: microserviceudemycourse@gmail.com
+    password: xodlxrwrvdyysqrk
     port: 587
     properties.mail.smtp.auth: true
     properties.mail.smtp.starttls.enable: true
