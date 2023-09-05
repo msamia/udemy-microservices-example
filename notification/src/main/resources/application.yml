@@ -1,0 +1,26 @@
+spring:
+  application:
+    name: '@name@'
+    version: '@version@'
+# Email Configuration
+  mail:
+    host: smtp.gmail.com
+    username: your-email@example.com
+    password: your-email-password
+    port: 587
+    properties.mail.smtp.auth: true
+    properties.mail.smtp.starttls.enable: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+      group-id: ${spring.application.name}
+      auto-offset-reset: latest
+      enable-auto-commit: false
+      properties:
+        isolation.level: read_committed
+      client-id: ${spring.application.name}
+app:
+  kafka:
+    notification.topic: ${NOTIFICATION_TOPIC:notification-domain-event}
+server.port: 8083

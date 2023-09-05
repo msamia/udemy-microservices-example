@@ -3,6 +3,7 @@ package com.example.common.v1.notification;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeName;
+import java.beans.ConstructorProperties;
 import lombok.Getter;
 
 @Getter
@@ -16,6 +17,7 @@ public class EmailTriggered extends NotificationEvent {
     private String firstName;
 
     @JsonCreator
+    @ConstructorProperties({"lastName", "firstName", "email", "price", "type"})
     public EmailTriggered(String lastName, String firstName, String email, NotificationType type) {
         super(EventType.EMAIL_TRIGGERED);
         this.lastName = lastName;
