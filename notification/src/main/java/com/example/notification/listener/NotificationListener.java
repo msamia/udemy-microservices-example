@@ -39,6 +39,7 @@ public class NotificationListener {
                            if (NotificationEvent.EventType.EMAIL_TRIGGERED.getEventName().equals(notification.getType())) {
                                EmailTriggered emailRequest = notification.getPayload();
                                this.emailService.send(emailRequest.getEmail(), String.valueOf(emailRequest.getNotificationType()), "Email body");
+                               this.emailService.sendEmailWithHtmlTemplate(emailRequest.getEmail(), String.valueOf(emailRequest.getNotificationType()), "Email body", "email-template");
                            }
                        });
                    } catch (Exception e) {
